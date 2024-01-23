@@ -122,7 +122,7 @@
 					# USEFUL FUNCTION: The ord function converts the first character of a string to its ASCII numerical equivalent.
 					$dist = (ord($guess) - ord($ans)) * $direction;					
 					/* 
-                                         Branch to one of the following cases if its respective condition is met:
+                                          If one of these cases has its conditions met, branch to that case.
 					     Case 1: dist is greater than 13.
 					     Case 2: dist is between 13 and 7, inclusive
 					     Case 3: dist is between 6 and 4, inclusive.
@@ -171,70 +171,75 @@
 						    int $atts,): int | bool
 				{
 					// Compare guess and ans using the spaceship operator.
-					# NEW FEATURE:
+					# NEW FEATURE: The spaceship operator (<=>) is a new comparison operator introduced in PHP 7.0, and functions as
+					#	       a more robust comparison operator. If the two operands are equal, the spaceship operator returns 0, however,
+					#	       unlike the equivalence operator, the spaceship operator also checks for the difference between the two operands.
+					#	       If the left operand is less than the right operand, -1 is returned, and if the left operand is greater than the
+					#              right operand, 1 is returned. This features serves as the crux of this game's functionality.
 					$direction = $guess <=> $ans;
-					#Then, branch for the following cases:
-					#	Case 1: $direction == 0
-					#	Case 2: $direction != 0
+					/*
+     					   If one of these cases has its conditions met, branch to that case.
+	                                   Case 1: direction = 0
+				           Case 2: direction != 0
+     					*/
 					if($direction == 0){
-						#Case 1 is satisfied.
-						#In this case, the user has won the game, and thus the following steps must be taken.
-						#Print out a victory message, congratulating the player on winning the game.
+						// Case 1's conditions are met, and in the context of the game, the user has guessed the correct answer, which
+						// is this game's victory condition.
+						// Congratulate the user on their triumph
 						echo("<div><p>Congratulations! You have correctly guessed the letter, which was <strong>" . $ans . "</strong>. 
                                                       If you would like to try again, please press Submit. </p></div>");
-						# Set the global atts to 0.
+						// Since the game has ended, the user does not have any more tries left. Set the atts session value to 0
 						$_SESSION["atts"] = 0;
-						# Return 0
+						// Since the game has ended, return 0.
 						return 0;
 					}else{
-						#Case 2 is satisfied.
-						#In this case, the user has guessed incorrectly. Decrement atts by 1.
+						// Case 2's conditions are met, and in the context of the game, the user's guess is incorrect.
+						// Decrement the local atts value by 1, and update the atts session value to match the local value.
 						$atts = $atts - 1;
-						#Update the global atts cookie.
 						$_SESSION["atts"] = $atts;
-						# Then, branch for the following cases:
-						# 	Case 2A: atts is greater than 0.
-						# 	Case 2B: atts == 0.
+
+						/*
+						   If one of these cases has its conditions met, branch to that case.
+	 					   	Case 2A: atts > 0
+	   						Case 2B: atts = 0
+      						*/
 						if($atts > 0){
-							#Case 2A is satisfied.
-							#In this case, the user has some attempts left in the game.
-							#Give the user 4 hints (by printing them to the screen):
-							# Hint #1: The number of attempts left.
-							#Print atts
+							// Case 2A's conditions are met, and in the context of the game, the user still has at least 1 attempt left.
+							// To provide the user some help, the following data is displayed:
+							/*
+       							  Datapoint 1: The number of attempts the user has left.
+							  Datapoint 2: The user's previous guess.
+	 						  Datapoint 3: The alphabetical direction to which the correct answer is in respect to the user's guess
+	  						  Datapoint 4: A measure of the guess's proximity to the correct answer (either Cold, Cool, Warm, or Hot)
+       							*/
+							// Display Datapoint 1: Print the number  of atttempts left to the screen.
 							echo('<div class = "w3-text-purple"><p>Attempts Remaining: <strong>' . $atts . '</strong></p></div>');
-							# Hint #2: The letter that the user entered in.
-							# Print guess
-							echo('<div><p>Your previous guess was <strong>' . $guess . '</strong>.</p></div>');	
+							// Display Datapoint 2: Print the user's last guess to the screen.
+							echo('<div><p>Your previous guess was <strong>' . $guess . '</strong>.</p></div>');
+							// Note that Datapoints 3 and 4 consist as the "hints" to the correct answer, and are thus labeled as such
+							// (with proper indentation)
 							echo('<div><div><p><strong>Hints:</strong></p></div>');
-							# Hint # 3: The direction to which the correct letter is.
-							#Branches off to 2 cases:
-							# 	Case 2Aa: direction == 1
-							# 	Case 2Ab: direction == -1
-							#Alternatively, this can be done with ternaries, and by shifting direction so that ternaries are supported. 
-                                                        # If direction is 1, then the correct answer will be to the left of the user's guess.
-							#If the direction is -1, then the correct answer  will be to the right of the user's guess
+							// Display Datapoint 3
+							// To compress the code to only a few lines, a +1 shift is applied to direction, and then a ternary statement
+							// will be used to display the right alphabetical direction to the user. (0 = right, 2 = left)
 							$hack_dir = $direction + 1;
 							echo('<div><p>#1: The correct answer is to the ' . ($hack_dir ? '<strong>left' : '<strong>right') . 
 							     '</strong> of your previous guess. </p></div>');
 							
-							#Hint #4: How far the correct answer is.
-							# Call relative_loc, and print the hint to the screen.
+							// Display Datapoint 4, by using the relative_loc function to print the correct proximity string.
 							$distStr = relative_loc($guess, $ans, $direction);
 							echo('<div><p>#2: Your guess is ' . $distStr .'</p></div>');
 							echo('</div>');
 							
-							#Return 1, since the game is still on.
+							// Since the game is still not over yet, return 1.
 							return 1;
 						}else{
-							#Case 2B is satisfied.
-							#In this case, the user has lost the game, so print out a defeat message.
+							// Case 2B's conditions are met, and in the context of the game, the user has guessed incorrectly on their final
+							// attempt, and therefore, they have lost the game.
 							echo("<div><p>You have ran out of attempts! Game Over</p></div>");
-							
-							#Show the user the correct answer.
 							echo('<div><p>The correct answer was <strong>' . $ans . '</strong>.</p></div>');
-							
 							echo('<div><p>If you think you can do better on the next try, please press Submit</p></div>');
-							#Return 0, since the game has ended.
+							// Since the game is over, return 0.
 							return 0;
 						}
 					}
@@ -243,68 +248,79 @@
 			
 				
 			
-				#The main process of the website.
-			
-				# Branch for the following case:
-				# Case 1: state is true
+				// Functions 1, 2, and 3 have now been defined.
+				// Proceed to the "main" function of the website.
+
+				/*
+    				  If one of these cases has its conditions met, branch to that case.
+	  			  	Case 1: newState = 1
+	                                Case 2: newState = 0
+    				*/
 				if(($newState == 1)){
-					#Case 1 is satisfied, meaning that the game is ongoing.
+					// Case 1's conditions are met, and in the context of the game, the game is still going.
 					
-					#First, set the value of attsLeft using the null coalescing operator to safely set it to 0 
-					# if the session variable hasn't been set (it will be set later)
-					#Note: Session variables are treated like cookie variables, in that they are
-					# accessed by a superglobal array. However, setting a superglobal function
-					# only requires a simple declaration statement, as opposed to calling a 
-					# function to set a cookie.
+					// Set the value of attsLeft either to the atts session value (if it exists) or 0 (if the atts session value does not exist).
+					# FUNCTIONALITY NOTE: Session variables are treated like cookie variables, in that they are
+					#      		      accessed by a superglobal array. However, setting a superglobal function
+					#                     only requires a simple declaration statement, as opposed to calling a 
+					#                     function to set a cookie.
 					$attsLeft = $_SESSION["atts"] ?? 0;
+
 					
+					// Set the reset value to either the reset superglobal (if the user has posted it) or "off" (if the user has not posted it)
 					$reset = $_POST['reset'] ?? "off";
 					
-					#If the game has resetted, set attsLeft to 0
+					// If the reset value is on, the user has requested for a reset of the game. Set attsLeft to 0.
 					if($reset == "on"){
 						$attsLeft = 0;
 					}
-					#Then branch for the following cases:
-					# 	Case 1A: attsLeft = 0 (the game has just started)
-					# 	Case 1B: attsLeft != 0 (the game has not started yet.)
+					/*
+					   If one of these cases has its conditions met, branch to that case.
+						Case 1A: attsLeft = 0
+					 	Case 1B: attsLeft != 0
+     					*/
 					if($attsLeft == 0){
-						#Case 1A is satisfied, so set the random character using random_char
-						#Call random_char
+						// Case 1A's conditions are met, and in the context of the game, the game has just begun.
+						//  Generate a random character using the random_char function, and then set the ans session value to said random character.
 						$randChar = random_char();
-						#Set the answer cookie to that random letter
 						$_SESSION["ans"] = $randChar;
 						
-						#Set attsLeft and the atts session value to 4
+						// Then, set attsLeft and the atts session value to 4, since the user starts with 4 attempts.
 						$attsLeft = 4;
 						$_SESSION["atts"] = 4;
-						#Display the number of attempts left.
+						// Display the number of attempts left.
 						echo('<div class = "w3-text-purple"><p>Attempts Remaining: ' . $attsLeft . '</p></div>');
 					}else{
-						#Case 1B is satisfied, meaning that the user has spent at least 1 attempt.
-						#Sanitize the user's answer.
+						// Case 1B's conditions are met, and in the context of the game, the user has made at least 1 action.
+						// To prevent any attempt of a malicious PHP injection, sanitize the user's string,
+						// and to ensure proper functionality, limit the string to the first character.
 						$str = $_POST['uAttempt'] ?? ' ';
 						$filteredStr = htmlspecialchars($str);
 						$loweredStr = strtolower($filteredStr);
 						$attempt = $loweredStr[0] ?? ' ';
-						#Do note that the user's answer could be blank, so branch off if the following cases are met:
-						#	Case 1Ba: The user's post does not exist or it is a non-character.
-						#	Case 1Bb: The user's post is a character.
+						/*
+      						   Since the user could enter invalid answers, proper condition branching must be taken.
+	       					   If one of these cases has its conditions met, branch to that case.
+					           	Case 1Ba: $attempt does not exist OR $attempt does not contain any alphabetical characters
+						   	Case 1Bb: $attempt exists AND $attempt contains a single alphabetical character.
+      						*/
 						if(!(($attempt >= 'a') && ($attempt <= 'z'))){
-							#Case 1Ba has beenn satisfied. Remind the user to input a letter.
+							// Case 1Ba's conditions are met. The user has entered an invalid submission.
 							echo("<div><p>Your answer is invalid. Please enter a lowercase letter in the English alphabet</p></div>");
 						}else{
-							#Case 1Bb has been satisfied, meaning that the user has submitted a valid answer.
-							#Call game_state, and set the state cookie to the result.
+							// Case 1Bb's conditions are met. The user has entered a valid solution.
+							// Set $answer to the ans session value, and call game_state to proceed with the flow of the game.
 							$answer = $_SESSION["ans"];
 							$newState = game_state($attempt, $answer, $attsLeft);
 						}
 					}
 				}else{
-					#Set newState to 1.
+					// Case 2's conditions are met. The game has not started.
+					// "Start" the game by setting newState to 1.
 					$newState = 1;
 				}
 				
-				#Set the state value to newState
+				// Set the state session value to newState.
 				$_SESSION["state"] = $newState;
 			?>
 			<!---/ Display the button /--->
